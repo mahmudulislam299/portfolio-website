@@ -36,9 +36,9 @@ export const portfolio = {
     ],
     photoSubtitle: "Embedded Systems Engineer · BSc EEE, BUET",
     floatingTags: [
-      { text: "Embedded Linux", top: "-18px", right: "24px" },
-      { text: "Firmware", bottom: "100px", left: "-30px" },
-      { text: "Edge AI", top: "38%", right: "-32px" },
+      { text: "Embedded Linux" },
+      { text: "Firmware" },
+      { text: "Edge AI" },
     ],
   },
 

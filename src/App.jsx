@@ -213,6 +213,8 @@ export default function App() {
         @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
         @keyframes orbit-spin{to{transform:rotate(360deg)}}
         @keyframes orbit-spin-reverse{to{transform:rotate(-360deg)}}
+        @keyframes tag-orbit{to{transform:rotate(360deg)}}
+        @keyframes tag-orbit-counter{to{transform:translate(-50%,-50%) rotate(-360deg)}}
         @keyframes portrait-breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.008)}}
         @keyframes scan-pass{0%,18%{transform:translateY(-140%);opacity:0}30%{opacity:.45}60%{opacity:.15}72%,100%{transform:translateY(520%);opacity:0}}
         @keyframes chip-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -222,7 +224,8 @@ export default function App() {
         @keyframes signal-run{0%{left:0;opacity:0}12%{opacity:1}82%{opacity:1}100%{left:100%;opacity:0}}
         @keyframes grid-current{to{background-position:56px 28px}}
         @media(prefers-reduced-motion:reduce){
-          .hero-orbit,.hero-portrait-stage,.hero-scan,.hero-floating-tag,.motion-chip,.motion-symbol,.signal-trace,.signal-trace::before,.modern-section::after,.section-orb{animation:none!important}
+          .hero-orbit,.hero-portrait-stage,.hero-scan,.motion-chip,.motion-symbol,.signal-trace,.signal-trace::before,.modern-section::after,.section-orb{animation:none!important}
+          .hero-tag-orbit{display:none!important}
         }
         .tag{display:inline-block;font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin:3px 3px 3px 0;letter-spacing:.02em;border:1px solid rgba(139,92,246,.22);background:rgba(139,92,246,.08);color:#c4b5fd;transition:all .2s;cursor:default}
         .tag:hover{background:rgba(139,92,246,.16);border-color:rgba(167,139,250,.38);color:#ddd6fe}
@@ -238,6 +241,8 @@ export default function App() {
         .nav-rail{padding:4px;border:1px solid rgba(167,139,250,.14);border-radius:12px;background:rgba(109,40,217,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 28px rgba(0,0,0,.08);backdrop-filter:blur(14px)}
         .nav-item{position:relative;border:1px solid transparent;cursor:pointer;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;transition:background .2s,border-color .2s,color .2s,transform .2s}
         .nav-item:hover{transform:translateY(-1px);background:rgba(139,92,246,.12)!important;border-color:rgba(167,139,250,.18)!important;color:#d8b4fe!important}
+        .hero-tag-orbit{position:absolute;z-index:4;width:450px;height:450px;left:50%;top:48%;margin-left:-225px;margin-top:-225px;border-radius:50%;animation:tag-orbit 216s linear infinite;pointer-events:none}
+        .hero-floating-tag{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;border-radius:99px;padding:7px 12px 7px 8px;font-size:10px;font-weight:600;white-space:nowrap;backdrop-filter:blur(16px);animation:tag-orbit-counter 216s linear infinite}
         .section-label{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#9333EA;margin-bottom:.5rem;display:flex;align-items:center;gap:8px}
         .section-label::before{content:'';display:block;width:7px;height:7px;background:#9333EA;border-radius:50%;box-shadow:0 0 0 5px rgba(147,51,234,.12),0 0 18px rgba(147,51,234,.55)}
         .section-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.1rem,4vw,3.15rem);font-weight:700;letter-spacing:-.045em;line-height:1.05;margin-bottom:1rem}
@@ -396,11 +401,13 @@ export default function App() {
               <span style={{ width:"6px",height:"6px",borderRadius:"50%",background:"#22c55e",boxShadow:"0 0 10px #22c55e" }} />
               Systems online
             </div>
-            {/* Floating chips */}
-            {hero.floatingTags.map(({ text: tagText, top, bottom, left, right }, index) => (
-              <div className="hero-floating-tag" key={tagText} style={{ position:"absolute",zIndex:3,top,bottom,left,right,display:"flex",alignItems:"center",gap:"7px",background:D?"rgba(17,13,28,.68)":"rgba(255,255,255,.76)",border:"1px solid rgba(192,132,252,.22)",borderRadius:"99px",padding:"7px 12px 7px 8px",fontSize:"10px",fontWeight:600,color:text2,backdropFilter:"blur(16px)",whiteSpace:"nowrap",boxShadow:"0 10px 35px rgba(0,0,0,.15)",animation:`chip-drift ${5 + index}s ease-in-out ${index * .7}s infinite` }}>
-                <span style={{ display:"grid",placeItems:"center",width:"19px",height:"19px",borderRadius:"50%",background:"linear-gradient(135deg,#6D28D9,#db2777)",color:"#fff",fontFamily:"'JetBrains Mono',monospace",fontSize:"7px" }}>0{index + 1}</span>
-                {tagText}
+            {/* Orbiting skill labels */}
+            {hero.floatingTags.map(({ text: tagText }, index) => (
+              <div className="hero-tag-orbit" key={tagText} style={{ animationDelay:`-${index * 72}s` }}>
+                <div className="hero-floating-tag" style={{ background:D?"rgba(17,13,28,.74)":"rgba(255,255,255,.82)",border:"1px solid rgba(192,132,252,.28)",color:text2,boxShadow:"0 10px 35px rgba(0,0,0,.16)",animationDelay:`-${index * 72}s` }}>
+                  <span style={{ display:"grid",placeItems:"center",width:"19px",height:"19px",borderRadius:"50%",background:"linear-gradient(135deg,#6D28D9,#db2777)",color:"#fff",fontFamily:"'JetBrains Mono',monospace",fontSize:"7px" }}>0{index + 1}</span>
+                  {tagText}
+                </div>
               </div>
             ))}
           </div>
