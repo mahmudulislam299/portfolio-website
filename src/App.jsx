@@ -147,6 +147,7 @@ export default function App() {
   const [lightbox, setLightbox] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [formStatus, setFormStatus] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const typed = useTyping(hero.typingStrings);
 
   const D = dark;
@@ -179,7 +180,7 @@ export default function App() {
     setFormData(current => ({ ...current, [name]: value }));
   };
 
-  const handleContactSubmit = e => {
+  const handleContactSubmit = async e => {
     e.preventDefault();
     const name = formData.name.trim();
     const email = formData.email.trim();
@@ -191,15 +192,36 @@ export default function App() {
       return;
     }
 
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      "",
-      message,
-    ].join("\n");
+    setIsSending(true);
+    setFormStatus("Sending your message...");
 
-    window.location.href = `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setFormStatus("Opening your email app with the message ready to send.");
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${emailAddress}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message,
+          _subject: subject,
+          _template: "table",
+          _captcha: "false",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Message send failed");
+
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      setFormStatus("Message sent successfully. Thanks for reaching out.");
+    } catch (error) {
+      setFormStatus("Message could not be sent right now. Please email me directly from the link on the left.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -707,7 +729,7 @@ export default function App() {
                     <label htmlFor="contact-message" style={{ display:"block",fontSize:"12px",fontWeight:600,color:text2,marginBottom:"6px",letterSpacing:".04em",textTransform:"uppercase" }}>Message</label>
                     <textarea id="contact-message" name="message" placeholder="Tell me about your project..." rows={4} value={formData.message} onChange={handleFormChange} required style={{ width:"100%",padding:"13px 14px",background:D?"rgba(255,255,255,.04)":"rgba(109,40,217,.035)",border:`1px solid ${border}`,borderRadius:"12px",color:text,fontSize:"14px",resize:"vertical",transition:"border-color .2s,box-shadow .2s" }} />
                   </div>
-                  <button type="submit" className="btn-primary" style={{ width:"100%",justifyContent:"center" }}>Send Message →</button>
+                  <button type="submit" className="btn-primary" disabled={isSending} style={{ width:"100%",justifyContent:"center",opacity:isSending?.7:1,cursor:isSending?"not-allowed":"pointer" }}>{isSending ? "Sending..." : "Send Message ->"}</button>
                   {formStatus && <p role="status" style={{ marginTop:"12px",fontSize:"13px",lineHeight:1.6,color:"#c084fc",textAlign:"center" }}>{formStatus}</p>}
                 </form>
               </div>
