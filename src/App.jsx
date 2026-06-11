@@ -145,6 +145,8 @@ export default function App() {
   const [active, setActive] = useState("Home");
   const [scrolled, setScrolled] = useState(false);
   const [lightbox, setLightbox] = useState(null);
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [formStatus, setFormStatus] = useState("");
   const typed = useTyping(hero.typingStrings);
 
   const D = dark;
@@ -170,6 +172,35 @@ export default function App() {
   }, []);
 
   const go = id => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const emailAddress = socialLinks.find(link => link.label === "Email")?.value ?? "";
+
+  const handleFormChange = e => {
+    const { name, value } = e.target;
+    setFormData(current => ({ ...current, [name]: value }));
+  };
+
+  const handleContactSubmit = e => {
+    e.preventDefault();
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const subject = formData.subject.trim() || "Portfolio contact";
+    const message = formData.message.trim();
+
+    if (!name || !email || !message) {
+      setFormStatus("Please add your name, email, and message before sending.");
+      return;
+    }
+
+    const body = [
+      `Name: ${name}`,
+      `Email: ${email}`,
+      "",
+      message,
+    ].join("\n");
+
+    window.location.href = `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setFormStatus("Opening your email app with the message ready to send.");
+  };
 
   return (
     <div style={{ fontFamily: "'Inter',sans-serif", background: bg, color: text, minHeight: "100vh", overflowX: "hidden", transition: "background .3s,color .3s" }}>
@@ -661,21 +692,24 @@ export default function App() {
                   <div style={{ fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:"19px",color:text }}>Send a message</div>
                   <span style={{ width:"34px",height:"34px",borderRadius:"50%",display:"grid",placeItems:"center",background:"rgba(109,40,217,.14)",border:"1px solid rgba(192,132,252,.2)",color:"#c084fc" }}>↗</span>
                 </div>
-                {[
-                  { label:"Full Name", type:"text", ph:"Your name" },
-                  { label:"Email Address", type:"email", ph:"your@email.com" },
-                  { label:"Subject", type:"text", ph:"Project inquiry, job opportunity..." },
-                ].map(({ label, type, ph }) => (
-                  <div key={label} style={{ marginBottom:"1.25rem" }}>
-                    <label style={{ display:"block",fontSize:"12px",fontWeight:600,color:text2,marginBottom:"6px",letterSpacing:".04em",textTransform:"uppercase" }}>{label}</label>
-                    <input type={type} placeholder={ph} style={{ width:"100%",padding:"13px 14px",background:D?"rgba(255,255,255,.04)":"rgba(109,40,217,.035)",border:`1px solid ${border}`,borderRadius:"12px",color:text,fontSize:"14px",transition:"border-color .2s,box-shadow .2s" }} />
+                <form onSubmit={handleContactSubmit}>
+                  {[
+                    { name:"name", label:"Full Name", type:"text", ph:"Your name", required:true },
+                    { name:"email", label:"Email Address", type:"email", ph:"your@email.com", required:true },
+                    { name:"subject", label:"Subject", type:"text", ph:"Project inquiry, job opportunity..." },
+                  ].map(({ name, label, type, ph, required }) => (
+                    <div key={label} style={{ marginBottom:"1.25rem" }}>
+                      <label htmlFor={`contact-${name}`} style={{ display:"block",fontSize:"12px",fontWeight:600,color:text2,marginBottom:"6px",letterSpacing:".04em",textTransform:"uppercase" }}>{label}</label>
+                      <input id={`contact-${name}`} name={name} type={type} placeholder={ph} value={formData[name]} onChange={handleFormChange} required={required} style={{ width:"100%",padding:"13px 14px",background:D?"rgba(255,255,255,.04)":"rgba(109,40,217,.035)",border:`1px solid ${border}`,borderRadius:"12px",color:text,fontSize:"14px",transition:"border-color .2s,box-shadow .2s" }} />
+                    </div>
+                  ))}
+                  <div style={{ marginBottom:"1.5rem" }}>
+                    <label htmlFor="contact-message" style={{ display:"block",fontSize:"12px",fontWeight:600,color:text2,marginBottom:"6px",letterSpacing:".04em",textTransform:"uppercase" }}>Message</label>
+                    <textarea id="contact-message" name="message" placeholder="Tell me about your project..." rows={4} value={formData.message} onChange={handleFormChange} required style={{ width:"100%",padding:"13px 14px",background:D?"rgba(255,255,255,.04)":"rgba(109,40,217,.035)",border:`1px solid ${border}`,borderRadius:"12px",color:text,fontSize:"14px",resize:"vertical",transition:"border-color .2s,box-shadow .2s" }} />
                   </div>
-                ))}
-                <div style={{ marginBottom:"1.5rem" }}>
-                  <label style={{ display:"block",fontSize:"12px",fontWeight:600,color:text2,marginBottom:"6px",letterSpacing:".04em",textTransform:"uppercase" }}>Message</label>
-                  <textarea placeholder="Tell me about your project..." rows={4} style={{ width:"100%",padding:"13px 14px",background:D?"rgba(255,255,255,.04)":"rgba(109,40,217,.035)",border:`1px solid ${border}`,borderRadius:"12px",color:text,fontSize:"14px",resize:"vertical",transition:"border-color .2s,box-shadow .2s" }} />
-                </div>
-                <button className="btn-primary" style={{ width:"100%",justifyContent:"center" }}>Send Message →</button>
+                  <button type="submit" className="btn-primary" style={{ width:"100%",justifyContent:"center" }}>Send Message →</button>
+                  {formStatus && <p role="status" style={{ marginTop:"12px",fontSize:"13px",lineHeight:1.6,color:"#c084fc",textAlign:"center" }}>{formStatus}</p>}
+                </form>
               </div>
             </Fade>
           </div>

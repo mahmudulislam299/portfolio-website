@@ -12,3 +12,11 @@ Almost all visible portfolio content lives in `src/portfolioData.js`.
 
 `src/App.jsx` contains the layout, styling, animations, and interactions. You normally
 do not need to edit it when changing portfolio content.
+
+
+# Run project
+```
+npm install -g vercel
+vercel login
+vercel --prod
+```
